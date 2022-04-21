@@ -1,33 +1,46 @@
-import { useMemo } from 'react';
+import { List, ListRowRenderer } from "react-virtualized";
 import { ProductItem } from "./ProductItem";
 
 type SearchResultsProps = {
+  totalPrice: number;
   results: Array<{
     id: number;
     price: number;
+    priceFormatted: string;
     title: string;
   }>;
   onAddToWishlist: (id: number) => void;
 };
 
-export function SearchResults({ results, onAddToWishlist }: SearchResultsProps) {
-  const totalPrice = useMemo(() => {
-    return results.reduce((total, product) => {
-      return total + product.price;
-    }, 0);
-  }, [results]);
+export function SearchResults({
+  results,
+  onAddToWishlist,
+  totalPrice,
+}: SearchResultsProps) {
+  const rowRenderer: ListRowRenderer = ({ index, key, style }) => {
+    return (
+      <div key={key} style={style}>
+        <ProductItem
+          key={key}
+          product={results[index]}
+          onAddToWishlist={onAddToWishlist}
+        />
+      </div>
+    );
+  };
 
   return (
     <div>
       <h2>{totalPrice}</h2>
 
-      {results.map((product) => (
-        <ProductItem 
-          key={product.id} 
-          product={product} 
-          onAddToWishlist={onAddToWishlist} 
-        />
-      ))}
+      <List
+        height={300}
+        rowHeight={30}
+        width={900}
+        overscanRowCount={5}
+        rowCount={results.length}
+        rowRenderer={rowRenderer}
+      />
     </div>
   );
 }
@@ -40,7 +53,7 @@ export function SearchResults({ results, onAddToWishlist }: SearchResultsProps) 
 
 /**
  * memo: quando usar.
- * 
+ *
  * 1. Pure Functional Components
  * 2. Renders too often
  * 3. Re-renders with same props
@@ -49,13 +62,13 @@ export function SearchResults({ results, onAddToWishlist }: SearchResultsProps) 
 
 /**
  * useMemo (valor): quando usar.
- * 
+ *
  * 1. Cálculos pesados
  * 2. Igualdade referencial (quando a gente repassa aquela informação para um componente filho)
  */
 
 /**
  * useCallback (função): quando usar.
- * 
- * 1. 
+ *
+ * 1.
  */
